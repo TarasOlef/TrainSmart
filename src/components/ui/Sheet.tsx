@@ -42,7 +42,7 @@ export function Sheet({
     <div className="fixed inset-0 z-50 flex items-end justify-center">
       <button
         aria-label="Cerrar"
-        className="absolute inset-0 animate-fade bg-black/60"
+        className="absolute inset-0 animate-fade bg-bg/75 backdrop-blur-sm"
         onClick={onClose}
       />
       <div
@@ -52,17 +52,17 @@ export function Sheet({
         aria-label={title}
         tabIndex={-1}
         className={cx(
-          "relative w-full max-w-md animate-rise rounded-t-3xl border-t border-line bg-surface px-5 pt-3 pb-safe-8 outline-none",
+          "relative w-full max-w-md animate-rise rounded-t-[2rem] border-t border-line bg-surface px-5 pt-3 pb-safe-8 shadow-[0_-24px_60px_-30px_rgba(0,0,0,1)] outline-none",
         )}
       >
-        <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-line" aria-hidden />
+        <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-line" aria-hidden />
         {title && (
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">{title}</h2>
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <h2 className="font-display text-xl font-bold tracking-tight">{title}</h2>
             <button
               onClick={onClose}
               aria-label="Cerrar"
-              className="flex size-8 items-center justify-center rounded-full bg-raised text-dim"
+              className="flex size-9 shrink-0 items-center justify-center rounded-full border border-line bg-raised text-dim active:text-ink"
             >
               <X className="size-4" />
             </button>

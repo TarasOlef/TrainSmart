@@ -31,12 +31,9 @@ export function parseDecimal(raw: string): number | null {
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
-/** Segundos -> "12:34" */
-export function formatClock(totalSeconds: number): string {
-  const s = Math.max(0, Math.floor(totalSeconds));
-  const m = Math.floor(s / 60);
-  const rest = s % 60;
-  return `${m}:${rest.toString().padStart(2, "0")}`;
+/** 4320 -> "4.320" · 0 -> "0" (kg movidos en una sesión) */
+export function formatVolume(kg: number): string {
+  return Math.round(kg).toLocaleString("es-ES");
 }
 
 /** Minutos -> "52 min" | "1 h 4 min" */
@@ -57,6 +54,15 @@ export function relativeDays(iso: string): string {
   if (diff <= 0) return "hoy";
   if (diff === 1) return "ayer";
   return `hace ${diff} días`;
+}
+
+/** ISO -> { day: "14", month: "ago" } para el bloque de fecha del historial */
+export function dateParts(iso: string): { day: string; month: string } {
+  const d = new Date(iso);
+  return {
+    day: String(d.getDate()),
+    month: d.toLocaleDateString("es-ES", { month: "short" }).replace(/\./g, ""),
+  };
 }
 
 /** ISO -> "Vie 14 ago" */

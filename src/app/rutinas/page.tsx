@@ -82,14 +82,16 @@ export default function RoutinesPage() {
 
   return (
     <main className="px-5 pt-safe">
-      <div className="flex items-center justify-between pt-6">
-        <h1 className="text-[28px] font-bold tracking-tight">Rutinas</h1>
+      <div className="flex items-end justify-between pt-8">
+        <h1 className="font-display text-[34px] font-extrabold leading-none tracking-tight">
+          Rutinas
+        </h1>
         <Button size="sm" variant="surface" onClick={() => setRoutineTarget({ mode: "create" })}>
           <Plus className="size-4" /> Nuevo día
         </Button>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-5">
         <SegmentedControl
           options={[
             { value: "blanca" as PersonId, label: "Blanca" },
@@ -126,7 +128,10 @@ export default function RoutinesPage() {
             return (
               <section
                 key={routine.id}
-                className="overflow-hidden rounded-card border border-line bg-surface"
+                className={cx(
+                  "overflow-hidden rounded-card border bg-surface transition-colors duration-200",
+                  expanded ? "border-line" : "border-line/60",
+                )}
               >
                 <button
                   onClick={() => setExpandedId(expanded ? null : routine.id)}
@@ -134,8 +139,10 @@ export default function RoutinesPage() {
                   className="flex w-full items-center gap-3 p-4 text-left"
                 >
                   <div className="min-w-0 flex-1">
-                    <h2 className="text-[17px] font-semibold">{routine.name}</h2>
-                    <p className="mt-0.5 text-[13px] text-dim">
+                    <h2 className="truncate font-display text-[20px] font-bold tracking-tight">
+                      {routine.name}
+                    </h2>
+                    <p className="mt-1 font-mono text-[11px] text-faint">
                       {routine.exercises.length} ejercicios
                     </p>
                   </div>
@@ -163,7 +170,7 @@ export default function RoutinesPage() {
                             <span className="block truncate text-[15px] font-medium">
                               {exercise.name}
                             </span>
-                            <span className="block text-xs text-faint">
+                            <span className="block font-mono text-[11px] text-faint">
                               {exercise.targetSets} series
                               {exercise.muscleGroup ? ` · ${exercise.muscleGroup}` : ""}
                             </span>
@@ -359,7 +366,7 @@ function IconBtn({
       disabled={disabled}
       onClick={onClick}
       className={cx(
-        "flex size-10 items-center justify-center rounded-xl transition-colors",
+        "flex size-10 items-center justify-center rounded-full transition-colors",
         danger ? "text-danger" : "text-dim active:text-ink",
         disabled && "opacity-30",
       )}
@@ -405,7 +412,7 @@ function RoutineSheet({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Ej. Push, Pull, Legs…"
-          className="w-full rounded-xl border border-line bg-raised px-4 py-3.5 text-base text-ink placeholder:text-faint"
+          className="w-full rounded-2xl border border-line bg-raised px-4 py-3.5 text-base text-ink placeholder:text-faint"
         />
         <Button type="submit" size="lg" variant="primary" className="mt-4 w-full" disabled={!name.trim()}>
           {target?.mode === "rename" ? "Guardar cambios" : "Crear día"}
@@ -454,10 +461,10 @@ function ExerciseSheet({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Nombre del ejercicio"
-          className="w-full rounded-xl border border-line bg-raised px-4 py-3.5 text-base text-ink placeholder:text-faint"
+          className="w-full rounded-2xl border border-line bg-raised px-4 py-3.5 text-base text-ink placeholder:text-faint"
         />
 
-        <div className="mt-4 flex items-center justify-between rounded-xl border border-line bg-raised px-4 py-3">
+        <div className="mt-4 flex items-center justify-between rounded-2xl border border-line bg-raised px-4 py-3">
           <span className="text-[15px] text-dim">Series iniciales</span>
           <div className="flex items-center gap-3">
             <button
@@ -468,7 +475,7 @@ function ExerciseSheet({
             >
               <Minus className="size-4" />
             </button>
-            <span className="tnum w-5 text-center text-lg font-semibold">{sets}</span>
+            <span className="tnum w-5 text-center font-mono text-lg font-semibold">{sets}</span>
             <button
               type="button"
               aria-label="Más series"

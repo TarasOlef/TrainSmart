@@ -18,7 +18,7 @@ import {
 import { PEOPLE } from "@/lib/mock-data";
 import type { PersonId, WorkoutRoutine } from "@/lib/types";
 import { useWorkout } from "@/lib/workout-store";
-import { formatDuration, relativeDays } from "@/lib/utils";
+import { cx, formatDuration, relativeDays } from "@/lib/utils";
 
 export default function PersonPage() {
   const router = useRouter();
@@ -47,6 +47,22 @@ export default function PersonPage() {
     );
   }, [routines, personId, hydrated]);
 
+  /** La rutina que lleva más tiempo sin hacerse es la que toca hoy. */
+  const suggestedId = useMemo(() => {
+    if (!routines || routines.length === 0) return null;
+    let best = routines[0]!;
+    let bestTime = Number.POSITIVE_INFINITY;
+    for (const routine of routines) {
+      const last = lastByRoutine[routine.id];
+      const time = last ? new Date(last.startedAt).getTime() : Number.NEGATIVE_INFINITY;
+      if (time < bestTime) {
+        bestTime = time;
+        best = routine;
+      }
+    }
+    return best.id;
+  }, [routines, lastByRoutine]);
+
   const start = (routine: WorkoutRoutine | null) => {
     // Si hay otra sesión en marcha, pedir confirmación antes de sustituirla
     if (session) {
@@ -63,9 +79,9 @@ export default function PersonPage() {
 
   return (
     <main>
-      <TopBar title={person.name} subtitle="Elige tu entrenamiento" onBack={() => router.push("/")} />
+      <TopBar title={person.name} subtitle="Elige el día" onBack={() => router.push("/")} />
 
-      <div className="px-5 pt-4">
+      <div className="px-4 pt-5">
         {routines === null ? (
           <div className="flex flex-col gap-3">
             <CardSkeleton />
@@ -87,41 +103,66 @@ export default function PersonPage() {
           />
         ) : (
           <div className="flex flex-col gap-3">
-            {routines.map((routine) => {
+            {routines.map((routine, i) => {
               const last = lastByRoutine[routine.id];
+              const preview = routine.exercises.slice(0, 4).map((e) => e.name).join(" · ");
+              const suggested = routine.id === suggestedId;
               return (
-                <div
+                <button
                   key={routine.id}
-                  className="flex items-center gap-3 rounded-card border border-line bg-surface p-5"
+                  onClick={() => start(routine)}
+                  className={cx(
+                    "w-full animate-rise rounded-tile border bg-surface p-5 text-left transition-transform duration-200 active:scale-[0.985]",
+                    suggested ? "border-accent/30" : "border-line",
+                    i === 1 && "stagger-1",
+                    i === 2 && "stagger-2",
+                    i >= 3 && "stagger-3",
+                  )}
                 >
-                  <div className="min-w-0 flex-1">
-                    <h2 className="text-xl font-semibold leading-tight">{routine.name}</h2>
-                    <p className="mt-1 text-[13px] text-dim">
-                      {routine.exercises.length} ejercicios
-                      {last && (
-                        <>
-                          {" · "}Último: {relativeDays(last.startedAt)} ·{" "}
-                          {formatDuration(last.durationMin)}
-                        </>
+                  <div className="flex items-start gap-4">
+                    <div className="min-w-0 flex-1">
+                      {suggested && (
+                        <p className="eyebrow mb-2 text-accent">Toca hoy</p>
                       )}
-                    </p>
+                      <h2 className="font-display text-[26px] font-extrabold leading-none tracking-tight">
+                        {routine.name}
+                      </h2>
+                      <p className="mt-2.5 font-mono text-[11px] text-faint">
+                        {routine.exercises.length} ejercicios
+                        {last && (
+                          <>
+                            {" · "}
+                            {relativeDays(last.startedAt)} · {formatDuration(last.durationMin)}
+                          </>
+                        )}
+                      </p>
+                    </div>
+                    <span
+                      aria-hidden
+                      className={cx(
+                        "flex size-12 shrink-0 items-center justify-center rounded-full",
+                        suggested
+                          ? "bg-accent text-bg shadow-[0_12px_28px_-14px] shadow-accent/80"
+                          : "border border-line bg-raised text-dim",
+                      )}
+                    >
+                      <Play className="size-5 fill-current" />
+                    </span>
                   </div>
-                  <Button
-                    variant="primary"
-                    size="md"
-                    className="shrink-0 rounded-full"
-                    onClick={() => start(routine)}
-                  >
-                    <Play className="size-4 fill-current" /> Empezar
-                  </Button>
-                </div>
+
+                  {preview && (
+                    <p className="mt-4 truncate border-t border-line/70 pt-3 text-[13px] text-dim">
+                      {preview}
+                    </p>
+                  )}
+                </button>
               );
             })}
 
             {/* Opción secundaria, deliberadamente discreta */}
             <button
               onClick={() => start(null)}
-              className="mx-auto mt-2 px-4 py-3 text-sm text-faint underline-offset-4 active:text-dim"
+              className="mx-auto mt-1 px-4 py-3 text-[13px] text-faint active:text-dim"
             >
               Entrenamiento libre
             </button>

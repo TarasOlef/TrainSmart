@@ -18,23 +18,28 @@ export function TopBar({
 }) {
   const router = useRouter();
   return (
-    <header className="sticky top-0 z-30 border-b border-line/60 bg-bg/90 pt-safe backdrop-blur-lg">
-      <div className="flex h-14 items-center gap-1 px-2">
+    <header className="sticky top-0 z-30 bg-bg/80 pt-safe backdrop-blur-xl">
+      <div className="flex h-16 items-center gap-3 px-4">
         <button
           onClick={onBack ?? (() => router.back())}
           aria-label="Volver"
-          className="flex size-11 items-center justify-center rounded-full text-dim active:text-ink"
+          className="flex size-10 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-dim transition-colors active:text-ink"
         >
-          <ChevronLeft className="size-6" />
+          <ChevronLeft className="size-5" />
         </button>
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-[17px] font-semibold leading-tight">{title}</h1>
+          <h1 className="truncate font-display text-[19px] font-bold leading-tight tracking-tight">
+            {title}
+          </h1>
           {subtitle && (
-            <p className="truncate text-xs text-faint leading-tight">{subtitle}</p>
+            <p className="truncate font-mono text-[11px] leading-tight text-faint">
+              {subtitle}
+            </p>
           )}
         </div>
-        {right && <div className="pr-2">{right}</div>}
+        {right}
       </div>
+      <div className="mx-4 h-px bg-line/70" aria-hidden />
     </header>
   );
 }

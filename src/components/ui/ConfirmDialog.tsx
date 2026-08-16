@@ -24,8 +24,8 @@ export function ConfirmDialog({
   return (
     <Sheet open={open} onClose={onCancel}>
       <div className="pt-1">
-        <h2 className="text-lg font-semibold">{title}</h2>
-        <p className="mt-1.5 text-[15px] leading-relaxed text-dim">{message}</p>
+        <h2 className="font-display text-xl font-bold leading-snug tracking-tight">{title}</h2>
+        <p className="mt-2 text-[15px] leading-relaxed text-dim">{message}</p>
         <div className="mt-6 flex flex-col gap-2.5">
           <Button
             size="lg"

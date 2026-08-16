@@ -5,18 +5,22 @@ import type { ExerciseSet } from "@/lib/types";
 import { cx, formatKg } from "@/lib/utils";
 import { NumberField } from "./NumberField";
 
-export const SET_GRID = "grid grid-cols-[1.5rem_2.9rem_minmax(0,1.15fr)_minmax(0,1fr)_2.5rem] items-center gap-x-2";
+export const SET_GRID =
+  "grid grid-cols-[1.75rem_3rem_minmax(0,1.15fr)_minmax(0,1fr)_3rem] items-center gap-x-2";
 
-/** Una fila de la tabla de series: nº · anterior · kg · reps · hecho. */
+/** Una fila del registro: nº · anterior · kg · reps · hecho. */
 export function SetRow({
   set,
   index,
+  current,
   onPatch,
   onToggle,
   onRequestDelete,
 }: {
   set: ExerciseSet;
   index: number;
+  /** Primera serie pendiente del ejercicio: es donde estás ahora. */
+  current: boolean;
   onPatch: (patch: Partial<ExerciseSet>) => void;
   onToggle: () => void;
   onRequestDelete: () => void;
@@ -30,23 +34,33 @@ export function SetRow({
     <div
       className={cx(
         SET_GRID,
-        "rounded-xl px-1 py-1 transition-colors duration-200",
-        set.completed && "bg-lime/8",
+        "relative rounded-xl py-1 pl-1 pr-1 transition-colors duration-200",
+        set.completed && "bg-ink/5",
       )}
     >
+      {current && (
+        <span
+          aria-hidden
+          className="absolute inset-y-2 -left-1.5 w-[3px] rounded-full bg-accent"
+        />
+      )}
+
       <button
         type="button"
         onClick={onRequestDelete}
         aria-label={`Opciones de la serie ${index + 1}`}
         className={cx(
-          "tnum h-11 text-sm font-semibold",
-          set.completed ? "text-lime" : "text-faint",
+          "tnum h-11 font-mono text-[13px] font-medium transition-colors",
+          set.completed ? "text-ink" : current ? "text-accent" : "text-faint",
         )}
       >
         {index + 1}
       </button>
 
-      <span className="tnum truncate text-[13px] text-faint" aria-label="Sesión anterior">
+      <span
+        className="tnum truncate font-mono text-[12px] text-faint"
+        aria-label="Sesión anterior"
+      >
         {prev}
       </span>
 
@@ -78,10 +92,12 @@ export function SetRow({
         }
         aria-pressed={set.completed}
         className={cx(
-          "mx-auto flex size-10 items-center justify-center rounded-full border transition-colors duration-150",
+          "mx-auto flex size-11 items-center justify-center rounded-full border transition-all duration-150 active:scale-90",
           set.completed
-            ? "animate-pop border-lime bg-lime text-bg"
-            : "border-line bg-raised text-faint active:border-faint",
+            ? "animate-pop border-ink bg-ink text-bg"
+            : current
+              ? "border-accent/70 bg-accent/10 text-accent"
+              : "border-line bg-raised text-faint",
         )}
       >
         <Check className="size-5" strokeWidth={3} />

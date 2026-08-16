@@ -11,15 +11,16 @@ const TABS = [
   { href: "/rutinas", label: "Rutinas", icon: NotebookPen },
 ] as const;
 
+/** Navegación flotante: solo la pestaña activa se nombra. */
 export function BottomNav() {
   const pathname = usePathname();
 
   return (
     <nav
       aria-label="Navegación principal"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-bg/90 backdrop-blur-lg"
+      className="fixed inset-x-0 bottom-0 z-40 pb-safe"
     >
-      <div className="mx-auto flex max-w-md items-stretch pb-safe">
+      <div className="mx-auto mb-3 flex w-[calc(100%-2rem)] max-w-md items-stretch gap-1 rounded-full border border-line/80 bg-surface/85 p-1.5 shadow-[0_20px_48px_-20px_rgba(0,0,0,0.95)] backdrop-blur-xl">
         {TABS.map(({ href, label, icon: Icon }) => {
           const active =
             href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -27,14 +28,17 @@ export function BottomNav() {
             <Link
               key={href}
               href={href}
+              aria-label={label}
               aria-current={active ? "page" : undefined}
               className={cx(
-                "flex h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors duration-150",
-                active ? "text-lime" : "text-faint active:text-dim",
+                "flex h-12 flex-1 items-center justify-center gap-2 rounded-full text-[13px] font-medium transition-colors duration-200",
+                active
+                  ? "bg-raised text-accent"
+                  : "text-faint active:text-dim",
               )}
             >
-              <Icon className="size-[22px]" strokeWidth={active ? 2.25 : 1.75} />
-              {label}
+              <Icon className="size-[19px]" strokeWidth={active ? 2.25 : 1.75} />
+              {active && label}
             </Link>
           );
         })}
@@ -45,5 +49,5 @@ export function BottomNav() {
 
 /** Relleno para que el contenido no quede oculto tras la navegación. */
 export function BottomNavSpacer() {
-  return <div className="h-16 pb-safe" aria-hidden />;
+  return <div className="h-24 pb-safe" aria-hidden />;
 }

@@ -224,6 +224,27 @@ export function sessionProgress(session: WorkoutSession): number {
   return all.filter((s) => s.completed).length / all.length;
 }
 
+/** Kg movidos: suma de peso × repeticiones de las series completadas. */
+export function sessionVolume(session: WorkoutSession): number {
+  return session.exercises.reduce(
+    (total, ex) =>
+      total +
+      ex.sets.reduce(
+        (sum, s) => (s.completed ? sum + (s.weightKg ?? 0) * (s.reps ?? 0) : sum),
+        0,
+      ),
+    0,
+  );
+}
+
+/** Series completadas de una sesión. */
+export function sessionSets(session: WorkoutSession): number {
+  return session.exercises.reduce(
+    (n, ex) => n + ex.sets.filter((s) => s.completed).length,
+    0,
+  );
+}
+
 /** Hook de conveniencia para saber si hay algo pendiente. */
 export function usePendingWork(session: WorkoutSession | null): boolean {
   return useCallback(() => {

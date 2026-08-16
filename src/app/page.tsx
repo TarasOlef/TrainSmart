@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ChevronRight, Play, Settings2 } from "lucide-react";
+import { ArrowUpRight, Play, Settings2 } from "lucide-react";
 import { BottomNav, BottomNavSpacer } from "@/components/BottomNav";
 import { Skeleton } from "@/components/ui/Skeleton";
 import {
@@ -47,10 +47,9 @@ export default function HomePage() {
 
   return (
     <main className="px-5 pt-safe">
-      {/* Cabecera de marca */}
       <div className="flex items-center justify-between pt-6">
-        <p className="text-[17px] font-bold tracking-tight">
-          Train<span className="text-lime">Smart</span>
+        <p className="font-display text-[17px] font-extrabold tracking-tight">
+          Train<span className="text-accent">Smart</span>
         </p>
         <Link
           href="/rutinas"
@@ -61,44 +60,43 @@ export default function HomePage() {
         </Link>
       </div>
 
-      <header className="mt-8">
-        <p className="text-[15px] text-dim">{greeting()}</p>
-        <h1 className="mt-1 text-[28px] font-bold leading-tight tracking-tight">
-          ¿Quién entrena hoy?
+      <header className="mt-9">
+        <p className="eyebrow text-faint">{greeting()}</p>
+        <h1 className="mt-2.5 font-display text-[34px] font-extrabold leading-[1.05] tracking-tight">
+          ¿Quién entrena
+          <br />
+          hoy?
         </h1>
       </header>
 
-      {/* Recuperación de una sesión interrumpida */}
+      {/* Sesión interrumpida: lo primero que se puede retomar */}
       {hydrated && session && (
         <button
           onClick={() => router.push("/workout")}
-          className="mt-6 flex w-full animate-rise items-center gap-3 rounded-card border border-lime/40 bg-lime/10 p-4 text-left"
+          className="mt-7 flex w-full animate-rise items-center gap-3.5 rounded-card border border-accent/35 bg-accent/8 p-4 text-left"
         >
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-lime text-bg">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent text-bg">
             <Play className="size-5 fill-current" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[15px] font-semibold">
-              Entrenamiento en curso
-            </span>
-            <span className="block truncate text-[13px] text-dim">
-              {sessionOwnerName(people, session.personId)} · {session.routineName} ·
-              empezado {relativeDays(session.startedAt)}
+            <span className="block text-[15px] font-semibold">Entrenamiento en curso</span>
+            <span className="mt-0.5 block truncate font-mono text-[11px] text-dim">
+              {sessionOwnerName(people, session.personId)} · {session.routineName} ·{" "}
+              {relativeDays(session.startedAt)}
             </span>
           </span>
-          <span className="shrink-0 text-sm font-semibold text-lime">Reanudar</span>
+          <span className="shrink-0 text-[13px] font-semibold text-accent">Reanudar</span>
         </button>
       )}
 
-      {/* Tarjetas de persona */}
-      <div className="mt-6 flex flex-col gap-3">
+      <div className="mt-7 flex flex-col gap-3">
         {people === null ? (
           <>
             <PersonSkeleton />
             <PersonSkeleton />
           </>
         ) : (
-          people.map((person) => {
+          people.map((person, i) => {
             const last = lastSessions[person.id];
             const isLast = lastPerson === person.id;
             return (
@@ -106,39 +104,46 @@ export default function HomePage() {
                 key={person.id}
                 onClick={() => pick(person.id)}
                 className={cx(
-                  "flex w-full items-center gap-4 rounded-card border bg-surface p-5 text-left transition-transform duration-150 active:scale-[0.985]",
-                  isLast ? "border-lime/50" : "border-line",
+                  "relative flex min-h-[11.5rem] w-full animate-rise flex-col justify-between overflow-hidden rounded-tile border bg-surface p-5 text-left transition-transform duration-200 active:scale-[0.985]",
+                  isLast ? "border-accent/35" : "border-line",
+                  i === 1 && "stagger-2",
                 )}
               >
+                {/* La inicial como marca tipográfica, sangrando por el borde */}
                 <span
                   aria-hidden
                   className={cx(
-                    "flex size-13 shrink-0 items-center justify-center rounded-full text-xl font-bold",
-                    isLast
-                      ? "bg-lime text-bg"
-                      : "border border-line bg-raised text-dim",
+                    "pointer-events-none absolute bottom-0 right-6 font-display text-[8.5rem] font-extrabold leading-none",
+                    isLast ? "text-accent/12" : "text-ink/[0.07]",
                   )}
                 >
                   {person.initial}
                 </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-xl font-semibold leading-tight">
+
+                <span className="flex items-start justify-between gap-3">
+                  <span className={cx("eyebrow", isLast ? "text-accent" : "text-faint")}>
+                    {isLast ? "Último en entrenar" : " "}
+                  </span>
+                  <ArrowUpRight className="size-5 shrink-0 text-faint" strokeWidth={1.75} />
+                </span>
+
+                <span className="relative">
+                  <span className="block font-display text-[2rem] font-extrabold leading-none tracking-tight">
                     {person.name}
                   </span>
-                  <span className="mt-1 block truncate text-[13px] text-dim">
+                  <span className="mt-2.5 block truncate font-mono text-[11.5px] text-dim">
                     {last === undefined ? (
                       "…"
                     ) : last === null ? (
-                      "Todavía sin entrenamientos"
+                      "Sin entrenamientos todavía"
                     ) : (
                       <>
-                        Último: {last.routineName} · {relativeDays(last.startedAt)} ·{" "}
+                        {last.routineName} · {relativeDays(last.startedAt)} ·{" "}
                         {formatDuration(last.durationMin)}
                       </>
                     )}
                   </span>
                 </span>
-                <ChevronRight className="size-5 shrink-0 text-faint" />
               </button>
             );
           })
@@ -157,12 +162,9 @@ function sessionOwnerName(people: UserProfile[] | null, id: PersonId): string {
 
 function PersonSkeleton() {
   return (
-    <div className="flex items-center gap-4 rounded-card border border-line bg-surface p-5">
-      <Skeleton className="size-13 rounded-full" />
-      <div className="flex-1">
-        <Skeleton className="h-5 w-24" />
-        <Skeleton className="mt-2 h-3.5 w-44" />
-      </div>
+    <div className="flex min-h-[11.5rem] flex-col justify-end rounded-tile border border-line/70 bg-surface/60 p-5">
+      <Skeleton className="h-8 w-32" />
+      <Skeleton className="mt-3 h-3 w-44" />
     </div>
   );
 }

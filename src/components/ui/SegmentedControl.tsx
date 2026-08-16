@@ -2,7 +2,7 @@
 
 import { cx } from "@/lib/utils";
 
-/** Selector de dos o tres opciones estilo iOS. */
+/** Selector de dos o tres opciones. */
 export function SegmentedControl<T extends string>({
   options,
   value,
@@ -15,7 +15,7 @@ export function SegmentedControl<T extends string>({
   return (
     <div
       role="tablist"
-      className="flex gap-1 rounded-2xl border border-line bg-surface p-1"
+      className="flex gap-1 rounded-full border border-line bg-surface p-1"
     >
       {options.map((opt) => {
         const active = opt.value === value;
@@ -26,8 +26,10 @@ export function SegmentedControl<T extends string>({
             aria-selected={active}
             onClick={() => onChange(opt.value)}
             className={cx(
-              "h-10 flex-1 rounded-xl text-[15px] font-medium transition-colors duration-150",
-              active ? "bg-raised text-ink shadow-sm shadow-black/20" : "text-dim",
+              "h-10 flex-1 rounded-full text-[15px] transition-colors duration-200",
+              active
+                ? "bg-raised font-semibold text-ink shadow-[0_6px_16px_-10px_rgba(0,0,0,0.9)]"
+                : "font-medium text-faint active:text-dim",
             )}
           >
             {opt.label}

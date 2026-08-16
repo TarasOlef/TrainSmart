@@ -1,12 +1,25 @@
 import type { Metadata, Viewport } from "next";
-import { Instrument_Sans } from "next/font/google";
+import { Bricolage_Grotesque, Geist_Mono, Instrument_Sans } from "next/font/google";
 import { WorkoutProvider } from "@/lib/workout-store";
 import { ToastProvider } from "@/components/ui/Toast";
 import "./globals.css";
 
-const appFont = Instrument_Sans({
+/* Tres voces: titulares con carácter, texto neutro y cifras de libreta. */
+const display = Bricolage_Grotesque({
   subsets: ["latin"],
-  variable: "--font-app",
+  variable: "--font-display",
+  display: "swap",
+});
+
+const body = Instrument_Sans({
+  subsets: ["latin"],
+  variable: "--font-body",
+  display: "swap",
+});
+
+const mono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
   display: "swap",
 });
 
@@ -26,14 +39,17 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#0a0a0b",
+  themeColor: "#0d1311",
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es" className={appFont.variable}>
+    <html
+      lang="es"
+      className={`${display.variable} ${body.variable} ${mono.variable}`}
+    >
       <body>
         <ToastProvider>
           <WorkoutProvider>

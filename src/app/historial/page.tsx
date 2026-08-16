@@ -9,7 +9,8 @@ import { CardSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getLastPersonId, getSessions, setLastPersonId } from "@/lib/data";
 import type { PersonId, WorkoutSession } from "@/lib/types";
-import { formatDuration, formatShortDate } from "@/lib/utils";
+import { sessionSets, sessionVolume } from "@/lib/workout-store";
+import { dateParts, formatDuration, formatVolume } from "@/lib/utils";
 
 export default function HistoryPage() {
   const [person, setPerson] = useState<PersonId>("blanca");
@@ -32,9 +33,11 @@ export default function HistoryPage() {
 
   return (
     <main className="px-5 pt-safe">
-      <h1 className="pt-6 text-[28px] font-bold tracking-tight">Historial</h1>
+      <h1 className="pt-8 font-display text-[34px] font-extrabold leading-none tracking-tight">
+        Historial
+      </h1>
 
-      <div className="mt-4">
+      <div className="mt-5">
         <SegmentedControl
           options={[
             { value: "blanca" as PersonId, label: "Blanca" },
@@ -48,7 +51,7 @@ export default function HistoryPage() {
         />
       </div>
 
-      <div className="mt-4 flex flex-col gap-3">
+      <div className="mt-4 flex flex-col gap-2.5">
         {sessions === null ? (
           <>
             <CardSkeleton />
@@ -64,29 +67,37 @@ export default function HistoryPage() {
         ) : (
           sessions.map((session) => {
             const improved = (session.achievements?.length ?? 0) > 0;
-            const exerciseCount = session.exercises.filter((e) =>
-              e.sets.some((s) => s.completed),
-            ).length;
+            const { day, month } = dateParts(session.startedAt);
             return (
               <Link
                 key={session.id}
                 href={`/historial/${session.id}`}
-                className="flex items-center gap-3 rounded-card border border-line bg-surface p-4 transition-transform duration-150 active:scale-[0.985]"
+                className="flex animate-rise items-center gap-4 rounded-card border border-line bg-surface p-4 transition-transform duration-200 active:scale-[0.985]"
               >
+                <div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-xl border border-line/70 bg-raised">
+                  <span className="font-display text-[19px] font-extrabold leading-none">
+                    {day}
+                  </span>
+                  <span className="eyebrow mt-1 text-faint">{month}</span>
+                </div>
+
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-[17px] font-semibold">{session.routineName}</h2>
+                    <h2 className="truncate font-display text-[17px] font-bold tracking-tight">
+                      {session.routineName}
+                    </h2>
                     {improved && (
-                      <span className="flex items-center gap-1 rounded-full bg-lime/12 px-2 py-0.5 text-[11px] font-semibold text-lime">
+                      <span className="flex shrink-0 items-center gap-1 rounded-full border border-accent/30 px-2 py-0.5 text-[10px] font-semibold text-accent">
                         <TrendingUp className="size-3" /> Progreso
                       </span>
                     )}
                   </div>
-                  <p className="mt-1 text-[13px] text-dim">
-                    {formatShortDate(session.startedAt)} ·{" "}
-                    {formatDuration(session.durationMin)} · {exerciseCount} ejercicios
+                  <p className="mt-1 truncate font-mono text-[11px] text-faint">
+                    {formatDuration(session.durationMin)} · {sessionSets(session)} series ·{" "}
+                    {formatVolume(sessionVolume(session))} kg
                   </p>
                 </div>
+
                 <ChevronRight className="size-5 shrink-0 text-faint" />
               </Link>
             );

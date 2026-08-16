@@ -1,5 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#0a0a0b"/>
-  <circle cx="32" cy="32" r="19" fill="none" stroke="#c9f04d" stroke-width="3"/>
-  <text x="32" y="33" text-anchor="middle" dominant-baseline="central" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="700" font-size="17" fill="#c9f04d">TS</text>
+  <rect width="64" height="64" rx="14" fill="#0d1311"/>
+  <g fill="#f0eee5">
+    <rect x="11" y="19" width="6" height="26" rx="3"/>
+    <rect x="23" y="19" width="6" height="26" rx="3"/>
+    <rect x="35" y="19" width="6" height="26" rx="3"/>
+  </g>
+  <rect x="47" y="19" width="6" height="26" rx="3" fill="#ffa338"/>
 </svg>

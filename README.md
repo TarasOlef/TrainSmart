@@ -11,6 +11,15 @@ npm run dev
 
 PWA mobile-first: pruébala con el móvil emulado en las DevTools o instálala desde el navegador (manifest incluido).
 
+## Lenguaje visual
+
+*Pizarra y tiza.* Fondo de pizarra (`#0d1311`), tinta de tiza cálida (`#f0eee5`) y un único acento ámbar (`#ffa338`) con una regla: **el ámbar marca siempre dónde estás ahora** — la serie que toca, el ejercicio abierto, la rutina del día. Lo ya registrado se pinta de tiza, nunca de color.
+
+- Tipografía: Bricolage Grotesque (titulares), Instrument Sans (texto), Geist Mono (cifras y etiquetas).
+- Elemento firma: **el listón** (`components/workout/SetRack.tsx`), una muesca por serie de la sesión agrupada por ejercicio. Sustituye a la barra de progreso y aparece también, en pequeño, en cada tarjeta plegada.
+- Sin temporizadores: durante el entrenamiento no hay relojes. En su lugar, el panel inferior muestra series hechas y kg movidos.
+- Tokens y utilidades (`eyebrow`, `tnum`, safe areas) en `src/app/globals.css`.
+
 ## Arquitectura
 
 - **Next.js 15 (App Router) + TypeScript estricto + Tailwind CSS 4 + Lucide.**
@@ -28,7 +37,7 @@ PWA mobile-first: pruébala con el móvil emulado en las DevTools o instálala d
 | --- | --- |
 | `/` | Inicio: ¿quién entrena hoy? |
 | `/p/[personId]` | Días de entrenamiento de la persona |
-| `/workout` | Sesión activa (registro de series + descanso) |
+| `/workout` | Sesión activa (registro de series) |
 | `/workout/summary` | Resumen al finalizar |
 | `/historial` · `/historial/[id]` | Historial y detalle de sesión |
 | `/rutinas` | Gestión de días y ejercicios |

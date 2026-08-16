@@ -44,8 +44,8 @@ export function NumberField({
   return (
     <div
       className={cx(
-        "flex h-11 items-center rounded-xl border border-line bg-raised",
-        disabled && "opacity-50",
+        "flex h-12 items-center rounded-xl border bg-raised transition-colors duration-200",
+        disabled ? "border-line/50 opacity-55" : "border-line",
       )}
     >
       <button
@@ -73,7 +73,7 @@ export function NumberField({
           onChange(parseDecimal(raw));
         }}
         onFocus={(e) => e.target.select()}
-        className="tnum w-full min-w-0 bg-transparent text-center text-base font-semibold text-ink placeholder:font-normal placeholder:text-faint/60"
+        className="tnum w-full min-w-0 bg-transparent text-center font-mono text-[17px] font-semibold text-ink placeholder:font-normal placeholder:text-faint/50"
       />
       <button
         type="button"
