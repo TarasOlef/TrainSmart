@@ -24,7 +24,7 @@ function lastTimeSummary(exercise: SessionExercise): string | null {
   if (prev.length === 0) return null;
   const weight = Math.max(...prev.map((s) => s.prevWeightKg as number));
   const reps = prev.map((s) => s.prevReps).join(", ");
-  return `${formatKg(weight)} kg · ${reps} reps`;
+  return `${formatKg(weight)} kg · ${reps}`;
 }
 
 export function ExerciseCard({
@@ -87,12 +87,11 @@ export function ExerciseCard({
         </span>
 
         <span className="min-w-0 flex-1">
-          <span className="flex items-center gap-2">
-            <span className="truncate font-display text-[18px] font-bold leading-snug tracking-tight">
-              {exercise.name}
-            </span>
+          {/* El nombre manda: fluye en dos líneas antes que recortarse */}
+          <span className="block font-display text-[18px] font-bold leading-snug tracking-tight">
+            {exercise.name}
             {exercise.muscleGroup && (
-              <span className="eyebrow shrink-0 rounded-full border border-line px-2 py-0.5 text-faint">
+              <span className="eyebrow ml-2 inline-block whitespace-nowrap rounded-full border border-line px-2 py-0.5 align-middle text-faint">
                 {exercise.muscleGroup}
               </span>
             )}

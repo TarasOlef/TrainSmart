@@ -85,18 +85,18 @@ export default function SessionDetailPage() {
             key={exercise.id}
             className="rounded-card border border-line bg-surface p-4"
           >
-            <div className="flex items-center gap-2.5">
-              <span className="tnum font-mono text-[12px] text-faint">
+            <div className="flex items-baseline gap-2.5">
+              <span className="tnum shrink-0 font-mono text-[12px] text-faint">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <h2 className="truncate font-display text-[17px] font-bold tracking-tight">
+              <h2 className="font-display text-[17px] font-bold leading-snug tracking-tight">
                 {exercise.name}
+                {exercise.muscleGroup && (
+                  <span className="eyebrow ml-2 inline-block whitespace-nowrap rounded-full border border-line px-2 py-0.5 align-middle text-faint">
+                    {exercise.muscleGroup}
+                  </span>
+                )}
               </h2>
-              {exercise.muscleGroup && (
-                <span className="eyebrow shrink-0 rounded-full border border-line px-2 py-0.5 text-faint">
-                  {exercise.muscleGroup}
-                </span>
-              )}
             </div>
 
             <div className="mt-3 flex flex-col gap-0.5">

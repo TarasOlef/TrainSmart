@@ -5,8 +5,13 @@ import type { ExerciseSet } from "@/lib/types";
 import { cx, formatKg } from "@/lib/utils";
 import { NumberField } from "./NumberField";
 
+/*
+ * Cinco columnas medidas para que un peso de cinco cifras ("142,5") quepa
+ * entero en una pantalla de 360 px: nº, referencia anterior, peso con
+ * botones, repeticiones y el visto.
+ */
 export const SET_GRID =
-  "grid grid-cols-[1.75rem_3rem_minmax(0,1.15fr)_minmax(0,1fr)_3rem] items-center gap-x-2";
+  "grid grid-cols-[1rem_2.75rem_minmax(0,1fr)_3rem_2.75rem] items-center gap-x-1";
 
 /** Una fila del registro: nº · anterior · kg · reps · hecho. */
 export function SetRow({
@@ -25,10 +30,7 @@ export function SetRow({
   onToggle: () => void;
   onRequestDelete: () => void;
 }) {
-  const prev =
-    set.prevWeightKg !== null && set.prevReps !== null
-      ? `${formatKg(set.prevWeightKg)}×${set.prevReps}`
-      : "–";
+  const hasPrev = set.prevWeightKg !== null || set.prevReps !== null;
 
   return (
     <div
@@ -57,11 +59,27 @@ export function SetRow({
         {index + 1}
       </button>
 
+      {/* Referencia de la sesión anterior, apilada para que nunca se recorte */}
       <span
-        className="tnum truncate font-mono text-[12px] text-faint"
-        aria-label="Sesión anterior"
+        className="flex flex-col leading-none"
+        aria-label={
+          hasPrev
+            ? `Sesión anterior: ${formatKg(set.prevWeightKg)} kilos por ${set.prevReps ?? "–"} repeticiones`
+            : "Sin sesión anterior"
+        }
       >
-        {prev}
+        {hasPrev ? (
+          <>
+            <span className="tnum font-mono text-[11px] text-dim">
+              {formatKg(set.prevWeightKg)}
+            </span>
+            <span className="tnum mt-0.5 font-mono text-[10px] text-faint">
+              ×{set.prevReps ?? "–"}
+            </span>
+          </>
+        ) : (
+          <span className="font-mono text-[11px] text-faint">–</span>
+        )}
       </span>
 
       <NumberField
@@ -78,6 +96,7 @@ export function SetRow({
         value={set.reps}
         placeholder={set.prevReps}
         step={1}
+        steppers={false}
         onChange={(reps) => onPatch({ reps: reps === null ? null : Math.round(reps) })}
         disabled={set.completed}
       />

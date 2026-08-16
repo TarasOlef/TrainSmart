@@ -6,9 +6,11 @@ import { cx, formatKg, parseDecimal } from "@/lib/utils";
 import { vibrate } from "@/lib/haptics";
 
 /**
- * Campo numérico táctil con botones de − / + a los lados.
- * Acepta decimales con coma ("62,5") y muestra el valor anterior
- * como placeholder fantasma para facilitar la sobrecarga progresiva.
+ * Campo numérico táctil. Acepta decimales con coma ("62,5") y muestra el
+ * valor de la sesión anterior como placeholder fantasma.
+ *
+ * El cuerpo se adapta a la longitud del número para que un "142,5" quepa
+ * entero incluso en pantallas de 360 px: nunca se recorta una cifra.
  */
 export function NumberField({
   value,
@@ -17,6 +19,7 @@ export function NumberField({
   onChange,
   label,
   disabled = false,
+  steppers = true,
 }: {
   value: number | null;
   placeholder: number | null;
@@ -24,6 +27,8 @@ export function NumberField({
   onChange: (value: number | null) => void;
   label: string;
   disabled?: boolean;
+  /** Botones de − / +. Se usan en el peso; las reps se teclean. */
+  steppers?: boolean;
 }) {
   const [text, setText] = useState(value === null ? "" : formatKg(value));
 
@@ -41,6 +46,11 @@ export function NumberField({
     onChange(next);
   };
 
+  // Red de seguridad: cifras muy largas bajan de cuerpo antes que recortarse
+  const shown = text || (placeholder === null ? "" : formatKg(placeholder));
+  const size =
+    shown.length >= 7 ? "text-[13px]" : shown.length === 6 ? "text-[15px]" : "text-[17px]";
+
   return (
     <div
       className={cx(
@@ -48,16 +58,18 @@ export function NumberField({
         disabled ? "border-line/50 opacity-55" : "border-line",
       )}
     >
-      <button
-        type="button"
-        aria-label={`Bajar ${label}`}
-        disabled={disabled}
-        onClick={() => bump(-1)}
-        className="flex h-full w-8 shrink-0 items-center justify-center text-faint active:text-ink"
-        tabIndex={-1}
-      >
-        <Minus className="size-3.5" />
-      </button>
+      {steppers && (
+        <button
+          type="button"
+          aria-label={`Bajar ${label}`}
+          disabled={disabled}
+          onClick={() => bump(-1)}
+          className="flex h-full w-7 shrink-0 items-center justify-center text-faint active:text-ink"
+          tabIndex={-1}
+        >
+          <Minus className="size-3.5" />
+        </button>
+      )}
       <input
         type="text"
         inputMode="decimal"
@@ -73,18 +85,23 @@ export function NumberField({
           onChange(parseDecimal(raw));
         }}
         onFocus={(e) => e.target.select()}
-        className="tnum w-full min-w-0 bg-transparent text-center font-mono text-[17px] font-semibold text-ink placeholder:font-normal placeholder:text-faint/50"
+        className={cx(
+          "tnum w-full min-w-0 bg-transparent px-0.5 text-center font-mono font-semibold text-ink placeholder:font-normal placeholder:text-faint/50",
+          size,
+        )}
       />
-      <button
-        type="button"
-        aria-label={`Subir ${label}`}
-        disabled={disabled}
-        onClick={() => bump(1)}
-        className="flex h-full w-8 shrink-0 items-center justify-center text-faint active:text-ink"
-        tabIndex={-1}
-      >
-        <Plus className="size-3.5" />
-      </button>
+      {steppers && (
+        <button
+          type="button"
+          aria-label={`Subir ${label}`}
+          disabled={disabled}
+          onClick={() => bump(1)}
+          className="flex h-full w-7 shrink-0 items-center justify-center text-faint active:text-ink"
+          tabIndex={-1}
+        >
+          <Plus className="size-3.5" />
+        </button>
+      )}
     </div>
   );
 }
