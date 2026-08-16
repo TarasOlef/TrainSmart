@@ -2,18 +2,18 @@
 
 import { Check } from "lucide-react";
 import type { ExerciseSet } from "@/lib/types";
-import { cx, formatKg } from "@/lib/utils";
+import { cx } from "@/lib/utils";
 import { NumberField } from "./NumberField";
 
 /*
- * Cinco columnas medidas para que un peso de cinco cifras ("142,5") quepa
- * entero en una pantalla de 360 px: nº, referencia anterior, peso con
- * botones, repeticiones y el visto.
+ * Cuatro columnas: nº, peso, repeticiones y el visto. Sin columna de
+ * referencia — el peso de la sesión anterior vive como fantasma dentro del
+ * propio campo, así las cifras que importan pueden ir grandes.
  */
 export const SET_GRID =
-  "grid grid-cols-[1rem_2.75rem_minmax(0,1fr)_3rem_2.75rem] items-center gap-x-1";
+  "grid grid-cols-[1.25rem_minmax(0,1fr)_4rem_2.75rem] items-center gap-x-2";
 
-/** Una fila del registro: nº · anterior · kg · reps · hecho. */
+/** Una fila del registro: nº · kg · reps · hecho. */
 export function SetRow({
   set,
   index,
@@ -30,8 +30,6 @@ export function SetRow({
   onToggle: () => void;
   onRequestDelete: () => void;
 }) {
-  const hasPrev = set.prevWeightKg !== null || set.prevReps !== null;
-
   return (
     <div
       className={cx(
@@ -58,29 +56,6 @@ export function SetRow({
       >
         {index + 1}
       </button>
-
-      {/* Referencia de la sesión anterior, apilada para que nunca se recorte */}
-      <span
-        className="flex flex-col leading-none"
-        aria-label={
-          hasPrev
-            ? `Sesión anterior: ${formatKg(set.prevWeightKg)} kilos por ${set.prevReps ?? "–"} repeticiones`
-            : "Sin sesión anterior"
-        }
-      >
-        {hasPrev ? (
-          <>
-            <span className="tnum font-mono text-[11px] text-dim">
-              {formatKg(set.prevWeightKg)}
-            </span>
-            <span className="tnum mt-0.5 font-mono text-[10px] text-faint">
-              ×{set.prevReps ?? "–"}
-            </span>
-          </>
-        ) : (
-          <span className="font-mono text-[11px] text-faint">–</span>
-        )}
-      </span>
 
       <NumberField
         label={`Peso de la serie ${index + 1} en kilos`}

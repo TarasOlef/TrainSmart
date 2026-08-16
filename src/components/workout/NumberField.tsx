@@ -49,7 +49,7 @@ export function NumberField({
   // Red de seguridad: cifras muy largas bajan de cuerpo antes que recortarse
   const shown = text || (placeholder === null ? "" : formatKg(placeholder));
   const size =
-    shown.length >= 7 ? "text-[13px]" : shown.length === 6 ? "text-[15px]" : "text-[17px]";
+    shown.length >= 7 ? "text-[14px]" : shown.length === 6 ? "text-[16px]" : "text-[19px]";
 
   return (
     <div
@@ -64,7 +64,7 @@ export function NumberField({
           aria-label={`Bajar ${label}`}
           disabled={disabled}
           onClick={() => bump(-1)}
-          className="flex h-full w-7 shrink-0 items-center justify-center text-faint active:text-ink"
+          className="flex h-full w-9 shrink-0 items-center justify-center text-faint active:text-ink"
           tabIndex={-1}
         >
           <Minus className="size-3.5" />
@@ -96,7 +96,7 @@ export function NumberField({
           aria-label={`Subir ${label}`}
           disabled={disabled}
           onClick={() => bump(1)}
-          className="flex h-full w-7 shrink-0 items-center justify-center text-faint active:text-ink"
+          className="flex h-full w-9 shrink-0 items-center justify-center text-faint active:text-ink"
           tabIndex={-1}
         >
           <Plus className="size-3.5" />

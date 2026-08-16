@@ -10,7 +10,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import type { SessionExercise } from "@/lib/types";
-import { cx, formatKg } from "@/lib/utils";
+import { cx } from "@/lib/utils";
 import { haptics } from "@/lib/haptics";
 import { useWorkout } from "@/lib/workout-store";
 import { Sheet } from "@/components/ui/Sheet";
@@ -18,24 +18,24 @@ import { Button } from "@/components/ui/Button";
 import { SetRack } from "./SetRack";
 import { SetRow, SET_GRID } from "./SetRow";
 
-/** Resumen "60 kg · 10, 9, 8" a partir de los datos de la sesión anterior. */
-function lastTimeSummary(exercise: SessionExercise): string | null {
-  const prev = exercise.sets.filter((s) => s.prevWeightKg !== null && s.prevReps !== null);
-  if (prev.length === 0) return null;
-  const weight = Math.max(...prev.map((s) => s.prevWeightKg as number));
-  const reps = prev.map((s) => s.prevReps).join(", ");
-  return `${formatKg(weight)} kg · ${reps}`;
+/** Repeticiones de referencia: "8" si se repiten, "5–8" si varían. */
+function repsReference(exercise: SessionExercise): string | null {
+  const reps = exercise.sets
+    .map((s) => s.reps ?? s.prevReps)
+    .filter((r): r is number => r !== null);
+  if (reps.length === 0) return null;
+  const min = Math.min(...reps);
+  const max = Math.max(...reps);
+  return min === max ? String(max) : `${min}–${max}`;
 }
 
 export function ExerciseCard({
   exercise,
-  index,
   expanded,
   onToggleExpand,
   onExerciseCompleted,
 }: {
   exercise: SessionExercise;
-  index: number;
   expanded: boolean;
   onToggleExpand: () => void;
   onExerciseCompleted: () => void;
@@ -48,7 +48,7 @@ export function ExerciseCard({
   const done = exercise.completed;
   const active = expanded && !done;
 
-  const summary = lastTimeSummary(exercise);
+  const reps = repsReference(exercise);
   const hasPrev = exercise.sets.some((s) => s.prevWeightKg !== null);
   const deleteIndex = exercise.sets.findIndex((s) => s.id === deleteSetId);
   const currentSetId = exercise.sets.find((s) => !s.completed)?.id ?? null;
@@ -75,47 +75,28 @@ export function ExerciseCard({
         type="button"
         onClick={onToggleExpand}
         aria-expanded={expanded}
-        className="flex w-full items-start gap-3.5 p-4 text-left"
+        className="flex w-full items-start gap-3 p-4 text-left"
       >
-        <span
-          className={cx(
-            "tnum mt-1 font-mono text-[12px] font-medium",
-            done ? "text-ink" : active ? "text-accent" : "text-faint",
-          )}
-        >
-          {String(index + 1).padStart(2, "0")}
-        </span>
-
         <span className="min-w-0 flex-1">
-          {/* El nombre manda: fluye en dos líneas antes que recortarse */}
-          <span className="block font-display text-[18px] font-bold leading-snug tracking-tight">
+          {/* El nombre manda: fluye en varias líneas antes que recortarse */}
+          <span className="block font-display text-[22px] font-extrabold leading-[1.15] tracking-tight">
             {exercise.name}
-            {exercise.muscleGroup && (
-              <span className="eyebrow ml-2 inline-block whitespace-nowrap rounded-full border border-line px-2 py-0.5 align-middle text-faint">
-                {exercise.muscleGroup}
-              </span>
+          </span>
+          {/* Series y repeticiones: la segunda voz */}
+          <span className="mt-2 block font-mono text-[13px] text-faint">
+            <span className="text-ink">{doneSets}</span>
+            <span className="text-dim">/{exercise.sets.length}</span> series
+            {reps && (
+              <>
+                {" · "}
+                <span className="text-ink">{reps}</span> reps
+              </>
             )}
           </span>
-          <span className="mt-1 block font-mono text-[11.5px] text-dim">
-            {summary ? `Anterior · ${summary}` : "Sin registros anteriores"}
-          </span>
-          {exercise.suggestion && !done && (
-            <span className="mt-1.5 flex items-center gap-1.5 text-[13px] text-dim">
-              <TrendingUp className="size-3.5 shrink-0 text-accent/80" strokeWidth={2.25} />
-              {exercise.suggestion}
-            </span>
-          )}
         </span>
 
-        <span className="mt-0.5 flex shrink-0 items-center gap-2.5">
-          {done ? (
-            <Check className="size-5 animate-check-in text-ink" strokeWidth={3} />
-          ) : (
-            <span className="tnum font-mono text-[13px] text-dim">
-              {doneSets}
-              <span className="text-faint">/{exercise.sets.length}</span>
-            </span>
-          )}
+        <span className="mt-1 flex shrink-0 items-center gap-2.5">
+          {done && <Check className="size-5 animate-check-in text-ink" strokeWidth={3} />}
           <ChevronDown
             className={cx(
               "size-4 text-faint transition-transform duration-300",
@@ -134,9 +115,16 @@ export function ExerciseCard({
 
       {expanded && (
         <div className="animate-fade px-4 pb-4">
+          {/* La sugerencia solo aparece al abrir, y en voz baja */}
+          {exercise.suggestion && !done && (
+            <p className="mb-3 flex items-center gap-1.5 text-[13px] text-dim">
+              <TrendingUp className="size-3.5 shrink-0 text-accent/80" strokeWidth={2.25} />
+              {exercise.suggestion}
+            </p>
+          )}
+
           <div className={cx(SET_GRID, "px-1 pb-2")}>
-            <span className="eyebrow text-center text-faint">Nº</span>
-            <span className="eyebrow text-faint">Ant</span>
+            <span aria-hidden />
             <span className="eyebrow text-center text-faint">Kg</span>
             <span className="eyebrow text-center text-faint">Reps</span>
             <span aria-hidden />

@@ -113,11 +113,10 @@ export default function WorkoutPage() {
           </div>
         )}
 
-        {session.exercises.map((exercise, i) => (
+        {session.exercises.map((exercise) => (
           <div key={exercise.id} id={`exercise-${exercise.id}`} className="scroll-mt-24">
             <ExerciseCard
               exercise={exercise}
-              index={i}
               expanded={expandedId === exercise.id}
               onToggleExpand={() =>
                 setExpandedId((cur) => (cur === exercise.id ? null : exercise.id))
