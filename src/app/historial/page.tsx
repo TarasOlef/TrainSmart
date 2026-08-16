@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CalendarDays, ChevronRight, TrendingUp } from "lucide-react";
-import { BottomNav, BottomNavSpacer } from "@/components/BottomNav";
+import { BottomNavSpacer } from "@/components/BottomNav";
+import { LargeTitle } from "@/components/LargeTitle";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { CardSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -33,9 +34,7 @@ export default function HistoryPage() {
 
   return (
     <main className="px-5 pt-safe">
-      <h1 className="pt-8 font-display text-[34px] font-extrabold leading-none tracking-tight">
-        Historial
-      </h1>
+      <LargeTitle title="Historial" />
 
       <div className="mt-5">
         <SegmentedControl
@@ -106,7 +105,6 @@ export default function HistoryPage() {
       </div>
 
       <BottomNavSpacer />
-      <BottomNav />
     </main>
   );
 }

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowUpRight, Play, Settings2 } from "lucide-react";
-import { BottomNav, BottomNavSpacer } from "@/components/BottomNav";
+import { BottomNavSpacer } from "@/components/BottomNav";
 import { Skeleton } from "@/components/ui/Skeleton";
 import {
   getLastPersonId,
@@ -151,7 +151,6 @@ export default function HomePage() {
       </div>
 
       <BottomNavSpacer />
-      <BottomNav />
     </main>
   );
 }

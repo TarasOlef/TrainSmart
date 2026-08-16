@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check, Loader2, Trophy, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { CountUp } from "@/components/ui/CountUp";
 import { useToast } from "@/components/ui/Toast";
 import { findLastSessionForRoutineSync, saveSession } from "@/lib/data";
 import { PEOPLE } from "@/lib/mock-data";
@@ -63,8 +64,8 @@ export default function SummaryPage() {
         </div>
 
         {/* La cifra de la sesión: el trabajo movido */}
-        <p className="mt-7 animate-rise stagger-1 font-display text-[68px] font-extrabold leading-[0.9] tracking-tighter">
-          {formatVolume(volume)}
+        <p className="tnum mt-7 animate-rise stagger-1 font-display text-[68px] font-extrabold leading-[0.9] tracking-tighter">
+          <CountUp value={volume} format={formatVolume} duration={1100} startFrom={0} />
           <span className="ml-2 align-top font-mono text-xl font-medium text-faint">kg</span>
         </p>
         <p className="mt-3 animate-rise stagger-1 font-mono text-[12px] text-dim">

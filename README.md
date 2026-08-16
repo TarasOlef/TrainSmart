@@ -18,7 +18,23 @@ PWA mobile-first: pruébala con el móvil emulado en las DevTools o instálala d
 - Tipografía: Bricolage Grotesque (titulares), Instrument Sans (texto), Geist Mono (cifras y etiquetas).
 - Elemento firma: **el listón** (`components/workout/SetRack.tsx`), una muesca por serie de la sesión agrupada por ejercicio. Sustituye a la barra de progreso y aparece también, en pequeño, en cada tarjeta plegada.
 - Sin temporizadores: durante el entrenamiento no hay relojes. En su lugar, el panel inferior muestra series hechas y kg movidos.
-- Tokens y utilidades (`eyebrow`, `tnum`, safe areas) en `src/app/globals.css`.
+- Tokens y utilidades (`eyebrow`, `tnum`, `hairline`, `row-press`, safe areas) en `src/app/globals.css`.
+
+### Componentes e interacción al estilo de iOS
+
+| Componente | Comportamiento |
+| --- | --- |
+| `ui/Sheet` | Hoja inferior que se arrastra para descartar, con resistencia elástica y cierre por velocidad. `useSheetGesture` reutiliza el gesto. |
+| `ui/ActionSheet` | Menú de acciones: grupo con filetes, opción destructiva en rojo y "Cancelar" despegado. |
+| `ui/Alert` | Alerta centrada con rebote. Dos acciones cortas van en fila; si alguna es larga se apilan y "Cancelar" baja al final. |
+| `ui/SwipeRow` | Deslizar una fila hacia la izquierda descubre "Eliminar"; el deslizamiento largo borra directamente. |
+| `ui/SegmentedControl` | La pastilla se desliza hasta la opción elegida. |
+| `ui/CountUp` | Cifras que ruedan hasta su nuevo valor (kg movidos). |
+| `LargeTitle` | Título grande que se desvanece en una barra compacta translúcida al desplazar. |
+| `BottomNav` | Barra de pestañas persistente en el layout: la pastilla viaja entre pantallas. |
+| `workout/NumberField` | Stepper con repetición al mantener pulsado. |
+
+Curvas del sistema en `@theme`: `ease-ios`, `ease-ios-out`, `ease-ios-in` y `ease-spring`. Todo el movimiento se apoya en `transform`/`opacity` y respeta `prefers-reduced-motion`.
 
 ## Arquitectura
 

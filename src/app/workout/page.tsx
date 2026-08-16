@@ -7,6 +7,8 @@ import { ExerciseCard } from "@/components/workout/ExerciseCard";
 import { SetRack } from "@/components/workout/SetRack";
 import { Button } from "@/components/ui/Button";
 import { Sheet } from "@/components/ui/Sheet";
+import { ActionSheet } from "@/components/ui/ActionSheet";
+import { CountUp } from "@/components/ui/CountUp";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { createAdHocExercise } from "@/lib/data";
 import { PEOPLE } from "@/lib/mock-data";
@@ -145,9 +147,9 @@ export default function WorkoutPage() {
       <div className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-md px-4 pb-safe-4">
         <div className="rounded-[1.75rem] border border-line/80 bg-surface/90 p-3 shadow-[0_28px_60px_-28px_rgba(0,0,0,1)] backdrop-blur-xl">
           <div className="flex items-end justify-between px-3 pb-3.5 pt-1.5">
-            <Meter value={String(sets)} label="Series hechas" />
+            <Meter value={sets} label="Series hechas" />
             <div className="h-8 w-px bg-line" aria-hidden />
-            <Meter value={formatVolume(volume)} label="Kg movidos" />
+            <Meter value={volume} label="Kg movidos" format={formatVolume} />
           </div>
           {/* Mientras quede trabajo, finalizar es la salida, no la acción */}
           <Button
@@ -162,43 +164,32 @@ export default function WorkoutPage() {
       </div>
 
       {/* Salir / descartar */}
-      <Sheet open={leaveOpen} onClose={() => setLeaveOpen(false)}>
-        <div className="pt-1">
-          <h2 className="font-display text-xl font-bold tracking-tight">
-            ¿Salir del entrenamiento?
-          </h2>
-          <p className="mt-2 text-[15px] leading-relaxed text-dim">
-            El progreso queda guardado y podrás reanudarlo desde el inicio.
-          </p>
-          <div className="mt-6 flex flex-col gap-2.5">
-            <Button
-              size="lg"
-              variant="surface"
-              onClick={() => {
-                setLeaveOpen(false);
-                router.push("/");
-              }}
-            >
-              Salir y mantener el progreso
-            </Button>
-            <Button
-              size="lg"
-              variant="danger"
-              onClick={() => {
-                dispatch({ type: "DISCARD" });
-                haptics.warn();
-                setLeaveOpen(false);
-                router.replace("/");
-              }}
-            >
-              Descartar entrenamiento
-            </Button>
-            <Button size="lg" variant="ghost" onClick={() => setLeaveOpen(false)}>
-              Seguir entrenando
-            </Button>
-          </div>
-        </div>
-      </Sheet>
+      <ActionSheet
+        open={leaveOpen}
+        onClose={() => setLeaveOpen(false)}
+        title="¿Salir del entrenamiento?"
+        message="El progreso queda guardado y podrás reanudarlo desde el inicio."
+        cancelLabel="Seguir entrenando"
+        actions={[
+          {
+            label: "Salir y mantener el progreso",
+            onSelect: () => {
+              setLeaveOpen(false);
+              router.push("/");
+            },
+          },
+          {
+            label: "Descartar entrenamiento",
+            destructive: true,
+            onSelect: () => {
+              dispatch({ type: "DISCARD" });
+              haptics.warn();
+              setLeaveOpen(false);
+              router.replace("/");
+            },
+          },
+        ]}
+      />
 
       {/* Confirmar finalización con trabajo pendiente */}
       <ConfirmDialog
@@ -249,10 +240,20 @@ export default function WorkoutPage() {
 }
 
 /** Cifra viva de la sesión: qué llevas hecho, no cuánto tiempo llevas. */
-function Meter({ value, label }: { value: string; label: string }) {
+function Meter({
+  value,
+  label,
+  format,
+}: {
+  value: number;
+  label: string;
+  format?: (value: number) => string;
+}) {
   return (
     <div>
-      <p className="tnum font-mono text-[22px] font-semibold leading-none">{value}</p>
+      <p className="tnum font-mono text-[22px] font-semibold leading-none">
+        <CountUp value={value} format={format} />
+      </p>
       <p className="eyebrow mt-1.5 text-faint">{label}</p>
     </div>
   );

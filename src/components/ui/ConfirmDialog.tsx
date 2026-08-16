@@ -1,9 +1,8 @@
 "use client";
 
-import { Sheet } from "./Sheet";
-import { Button } from "./Button";
+import { Alert } from "./Alert";
 
-/** Confirmación de acciones importantes, en formato bottom sheet. */
+/** Confirmación de acciones importantes, como alerta de iOS. */
 export function ConfirmDialog({
   open,
   title,
@@ -22,23 +21,20 @@ export function ConfirmDialog({
   onCancel: () => void;
 }) {
   return (
-    <Sheet open={open} onClose={onCancel}>
-      <div className="pt-1">
-        <h2 className="font-display text-xl font-bold leading-snug tracking-tight">{title}</h2>
-        <p className="mt-2 text-[15px] leading-relaxed text-dim">{message}</p>
-        <div className="mt-6 flex flex-col gap-2.5">
-          <Button
-            size="lg"
-            variant={destructive ? "danger" : "primary"}
-            onClick={onConfirm}
-          >
-            {confirmLabel}
-          </Button>
-          <Button size="lg" variant="ghost" onClick={onCancel}>
-            Cancelar
-          </Button>
-        </div>
-      </div>
-    </Sheet>
+    <Alert
+      open={open}
+      onClose={onCancel}
+      title={title}
+      message={message}
+      actions={[
+        { label: "Cancelar", onSelect: onCancel, cancel: true },
+        {
+          label: confirmLabel,
+          onSelect: onConfirm,
+          destructive,
+          preferred: true,
+        },
+      ]}
+    />
   );
 }

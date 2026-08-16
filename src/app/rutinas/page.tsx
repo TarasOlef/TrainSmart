@@ -11,12 +11,14 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { BottomNav, BottomNavSpacer } from "@/components/BottomNav";
+import { BottomNavSpacer } from "@/components/BottomNav";
+import { LargeTitle } from "@/components/LargeTitle";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { CardSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { Sheet } from "@/components/ui/Sheet";
+import { SwipeRow } from "@/components/ui/SwipeRow";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useToast } from "@/components/ui/Toast";
 import { getLastPersonId, getRoutines, saveRoutines, setLastPersonId } from "@/lib/data";
@@ -80,16 +82,28 @@ export default function RoutinesPage() {
     commit(routines.map((r) => (r.id === routine.id ? { ...r, exercises } : r)));
   };
 
+  const deleteExercise = (routineId: string, exerciseId: string) => {
+    if (!routines) return;
+    commit(
+      routines.map((r) =>
+        r.id === routineId
+          ? { ...r, exercises: r.exercises.filter((e) => e.id !== exerciseId) }
+          : r,
+      ),
+      "Ejercicio eliminado",
+    );
+  };
+
   return (
     <main className="px-5 pt-safe">
-      <div className="flex items-end justify-between pt-8">
-        <h1 className="font-display text-[34px] font-extrabold leading-none tracking-tight">
-          Rutinas
-        </h1>
-        <Button size="sm" variant="surface" onClick={() => setRoutineTarget({ mode: "create" })}>
-          <Plus className="size-4" /> Nuevo día
-        </Button>
-      </div>
+      <LargeTitle
+        title="Rutinas"
+        action={
+          <Button size="sm" variant="surface" onClick={() => setRoutineTarget({ mode: "create" })}>
+            <Plus className="size-4" /> Nuevo día
+          </Button>
+        }
+      />
 
       <div className="mt-5">
         <SegmentedControl
@@ -154,48 +168,57 @@ export default function RoutinesPage() {
                   />
                 </button>
 
-                {expanded && (
-                  <div className="animate-fade px-4 pb-4">
+                <div
+                  inert={!expanded}
+                  className={cx(
+                    "grid transition-[grid-template-rows,opacity] duration-[420ms] ease-ios",
+                    expanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+                  )}
+                >
+                  <div className="overflow-hidden">
+                  <div className="px-4 pb-4">
                     {/* Ejercicios */}
                     <div className="flex flex-col gap-1.5">
                       {routine.exercises.map((exercise, i) => (
-                        <div
+                        <SwipeRow
                           key={exercise.id}
-                          className="flex items-center gap-1 rounded-xl border border-line bg-raised py-1 pl-3.5 pr-1"
+                          onDelete={() => deleteExercise(routine.id, exercise.id)}
                         >
-                          <button
-                            onClick={() => setExerciseTarget({ routineId: routine.id, exercise })}
-                            className="min-w-0 flex-1 py-1.5 text-left"
-                          >
-                            <span className="block truncate text-[15px] font-medium">
-                              {exercise.name}
-                            </span>
-                            <span className="block font-mono text-[11px] text-faint">
-                              {exercise.targetSets} series
-                              {exercise.muscleGroup ? ` · ${exercise.muscleGroup}` : ""}
-                            </span>
-                          </button>
-                          <IconBtn
-                            label={`Subir ${exercise.name}`}
-                            disabled={i === 0}
-                            onClick={() => moveExercise(routine, i, -1)}
-                          >
-                            <ChevronUp className="size-4" />
-                          </IconBtn>
-                          <IconBtn
-                            label={`Bajar ${exercise.name}`}
-                            disabled={i === routine.exercises.length - 1}
-                            onClick={() => moveExercise(routine, i, 1)}
-                          >
-                            <ChevronDown className="size-4" />
-                          </IconBtn>
-                          <IconBtn
-                            label={`Editar ${exercise.name}`}
-                            onClick={() => setExerciseTarget({ routineId: routine.id, exercise })}
-                          >
-                            <Pencil className="size-3.5" />
-                          </IconBtn>
-                        </div>
+                          <div className="row-press flex items-center gap-1 rounded-2xl border border-line bg-raised py-1 pl-3.5 pr-1">
+                            <button
+                              onClick={() => setExerciseTarget({ routineId: routine.id, exercise })}
+                              className="min-w-0 flex-1 py-1.5 text-left"
+                            >
+                              <span className="block truncate text-[15px] font-medium">
+                                {exercise.name}
+                              </span>
+                              <span className="block font-mono text-[11px] text-faint">
+                                {exercise.targetSets} series
+                                {exercise.muscleGroup ? ` · ${exercise.muscleGroup}` : ""}
+                              </span>
+                            </button>
+                            <IconBtn
+                              label={`Subir ${exercise.name}`}
+                              disabled={i === 0}
+                              onClick={() => moveExercise(routine, i, -1)}
+                            >
+                              <ChevronUp className="size-4" />
+                            </IconBtn>
+                            <IconBtn
+                              label={`Bajar ${exercise.name}`}
+                              disabled={i === routine.exercises.length - 1}
+                              onClick={() => moveExercise(routine, i, 1)}
+                            >
+                              <ChevronDown className="size-4" />
+                            </IconBtn>
+                            <IconBtn
+                              label={`Editar ${exercise.name}`}
+                              onClick={() => setExerciseTarget({ routineId: routine.id, exercise })}
+                            >
+                              <Pencil className="size-3.5" />
+                            </IconBtn>
+                          </div>
+                        </SwipeRow>
                       ))}
                     </div>
 
@@ -251,7 +274,8 @@ export default function RoutinesPage() {
                       </IconBtn>
                     </div>
                   </div>
-                )}
+                  </div>
+                </div>
               </section>
             );
           })
@@ -311,15 +335,8 @@ export default function RoutinesPage() {
           setExerciseTarget(null);
         }}
         onDelete={(exerciseId) => {
-          if (!routines || !exerciseTarget) return;
-          commit(
-            routines.map((r) =>
-              r.id === exerciseTarget.routineId
-                ? { ...r, exercises: r.exercises.filter((e) => e.id !== exerciseId) }
-                : r,
-            ),
-            "Ejercicio eliminado",
-          );
+          if (!exerciseTarget) return;
+          deleteExercise(exerciseTarget.routineId, exerciseId);
           setExerciseTarget(null);
         }}
       />
@@ -341,7 +358,6 @@ export default function RoutinesPage() {
       />
 
       <BottomNavSpacer />
-      <BottomNav />
     </main>
   );
 }

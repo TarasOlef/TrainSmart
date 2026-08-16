@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Geist_Mono, Instrument_Sans } from "next/font/google";
 import { WorkoutProvider } from "@/lib/workout-store";
 import { ToastProvider } from "@/components/ui/Toast";
+import { BottomNav } from "@/components/BottomNav";
 import "./globals.css";
 
 /* Tres voces: titulares con carácter, texto neutro y cifras de libreta. */
@@ -55,6 +56,8 @@ export default function RootLayout({
           <WorkoutProvider>
             {/* Contenedor tipo app: ancho móvil también en escritorio */}
             <div className="mx-auto min-h-dvh w-full max-w-md">{children}</div>
+            {/* La barra vive fuera de las páginas: así se desliza entre ellas */}
+            <BottomNav />
           </WorkoutProvider>
         </ToastProvider>
       </body>

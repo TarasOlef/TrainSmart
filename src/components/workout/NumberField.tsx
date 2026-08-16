@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import { cx, formatKg, parseDecimal } from "@/lib/utils";
 import { vibrate } from "@/lib/haptics";
+
+/** Como el stepper de iOS: al mantener pulsado, la cifra empieza a correr. */
+const HOLD_DELAY = 420;
+const HOLD_INTERVAL = 90;
 
 /**
  * Campo numérico táctil. Acepta decimales con coma ("62,5") y muestra el
@@ -32,6 +36,16 @@ export function NumberField({
 }) {
   const [text, setText] = useState(value === null ? "" : formatKg(value));
 
+  // Referencias vivas para que el pulsado sostenido no trabaje con datos viejos
+  const valueRef = useRef(value);
+  const placeholderRef = useRef(placeholder);
+  const changeRef = useRef(onChange);
+  valueRef.current = value;
+  placeholderRef.current = placeholder;
+  changeRef.current = onChange;
+
+  const hold = useRef<{ delay?: number; repeat?: number }>({});
+
   // Sincronizar cuando el valor cambia desde fuera (copiar anterior, autocompletar)
   useEffect(() => {
     const parsed = parseDecimal(text);
@@ -39,17 +53,58 @@ export function NumberField({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
-  const bump = (dir: 1 | -1) => {
-    const base = value ?? placeholder ?? 0;
-    const next = Math.max(0, Math.round((base + dir * step) * 100) / 100);
-    vibrate(5);
-    onChange(next);
-  };
+  const bump = useCallback(
+    (dir: 1 | -1) => {
+      const base = valueRef.current ?? placeholderRef.current ?? 0;
+      const next = Math.max(0, Math.round((base + dir * step) * 100) / 100);
+      vibrate(5);
+      changeRef.current(next);
+    },
+    [step],
+  );
+
+  const stopHold = useCallback(() => {
+    window.clearTimeout(hold.current.delay);
+    window.clearInterval(hold.current.repeat);
+    hold.current = {};
+  }, []);
+
+  const startHold = useCallback(
+    (dir: 1 | -1) => {
+      bump(dir);
+      hold.current.delay = window.setTimeout(() => {
+        hold.current.repeat = window.setInterval(() => bump(dir), HOLD_INTERVAL);
+      }, HOLD_DELAY);
+    },
+    [bump],
+  );
+
+  useEffect(() => stopHold, [stopHold]);
 
   // Red de seguridad: cifras muy largas bajan de cuerpo antes que recortarse
   const shown = text || (placeholder === null ? "" : formatKg(placeholder));
   const size =
     shown.length >= 7 ? "text-[14px]" : shown.length === 6 ? "text-[16px]" : "text-[19px]";
+
+  const stepper = (dir: 1 | -1) => (
+    <button
+      type="button"
+      aria-label={`${dir === 1 ? "Subir" : "Bajar"} ${label}`}
+      disabled={disabled}
+      onPointerDown={(e) => {
+        if (disabled) return;
+        e.preventDefault();
+        startHold(dir);
+      }}
+      onPointerUp={stopHold}
+      onPointerLeave={stopHold}
+      onPointerCancel={stopHold}
+      className="flex h-full w-9 shrink-0 items-center justify-center text-faint transition-[color,transform] duration-100 active:scale-90 active:text-ink"
+      tabIndex={-1}
+    >
+      {dir === 1 ? <Plus className="size-3.5" /> : <Minus className="size-3.5" />}
+    </button>
+  );
 
   return (
     <div
@@ -59,16 +114,10 @@ export function NumberField({
       )}
     >
       {steppers && (
-        <button
-          type="button"
-          aria-label={`Bajar ${label}`}
-          disabled={disabled}
-          onClick={() => bump(-1)}
-          className="flex h-full w-9 shrink-0 items-center justify-center text-faint active:text-ink"
-          tabIndex={-1}
-        >
-          <Minus className="size-3.5" />
-        </button>
+        <>
+          {stepper(-1)}
+          <span aria-hidden className="h-6 w-px bg-line/70" />
+        </>
       )}
       <input
         type="text"
@@ -86,21 +135,15 @@ export function NumberField({
         }}
         onFocus={(e) => e.target.select()}
         className={cx(
-          "tnum w-full min-w-0 bg-transparent px-0.5 text-center font-mono font-semibold text-ink placeholder:font-normal placeholder:text-faint/50",
+          "tnum w-full min-w-0 bg-transparent px-0.5 text-center font-mono font-semibold text-ink transition-[font-size] duration-200 placeholder:font-normal placeholder:text-faint/50",
           size,
         )}
       />
       {steppers && (
-        <button
-          type="button"
-          aria-label={`Subir ${label}`}
-          disabled={disabled}
-          onClick={() => bump(1)}
-          className="flex h-full w-9 shrink-0 items-center justify-center text-faint active:text-ink"
-          tabIndex={-1}
-        >
-          <Plus className="size-3.5" />
-        </button>
+        <>
+          <span aria-hidden className="h-6 w-px bg-line/70" />
+          {stepper(1)}
+        </>
       )}
     </div>
   );

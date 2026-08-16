@@ -13,7 +13,7 @@ import type { SessionExercise } from "@/lib/types";
 import { cx } from "@/lib/utils";
 import { haptics } from "@/lib/haptics";
 import { useWorkout } from "@/lib/workout-store";
-import { Sheet } from "@/components/ui/Sheet";
+import { ActionSheet } from "@/components/ui/ActionSheet";
 import { Button } from "@/components/ui/Button";
 import { SetRack } from "./SetRack";
 import { SetRow, SET_GRID } from "./SetRow";
@@ -75,7 +75,7 @@ export function ExerciseCard({
         type="button"
         onClick={onToggleExpand}
         aria-expanded={expanded}
-        className="flex w-full items-start gap-3 p-4 text-left"
+        className="row-press flex w-full items-start gap-3 rounded-card p-4 text-left"
       >
         <span className="min-w-0 flex-1">
           {/* El nombre manda: fluye en varias líneas antes que recortarse */}
@@ -106,15 +106,30 @@ export function ExerciseCard({
         </span>
       </button>
 
-      {/* Muescas del ejercicio cuando está plegado */}
-      {!expanded && exercise.sets.length > 0 && (
-        <div className="px-4 pb-4">
-          <SetRack exercises={[exercise]} className="h-1" />
+      {/* Muescas del ejercicio cuando está plegado: se pliegan solas al abrir */}
+      <div
+        className={cx(
+          "grid transition-[grid-template-rows,opacity] duration-[380ms] ease-ios",
+          expanded ? "grid-rows-[0fr] opacity-0" : "grid-rows-[1fr] opacity-100",
+        )}
+      >
+        <div className="overflow-hidden">
+          <div className="px-4 pb-4">
+            <SetRack exercises={[exercise]} className="h-1" />
+          </div>
         </div>
-      )}
+      </div>
 
-      {expanded && (
-        <div className="animate-fade px-4 pb-4">
+      {/* El cuerpo crece y mengua con la curva del sistema, sin saltos */}
+      <div
+        inert={!expanded}
+        className={cx(
+          "grid transition-[grid-template-rows,opacity] duration-[420ms] ease-ios",
+          expanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+        )}
+      >
+        <div className="overflow-hidden">
+        <div className="px-4 pb-4">
           {/* La sugerencia solo aparece al abrir, y en voz baja */}
           {exercise.suggestion && !done && (
             <p className="mb-3 flex items-center gap-1.5 text-[13px] text-dim">
@@ -227,35 +242,29 @@ export function ExerciseCard({
             )}
           </Button>
         </div>
-      )}
-
-      {/* Menú seguro para eliminar una serie */}
-      <Sheet open={deleteSetId !== null} onClose={() => setDeleteSetId(null)}>
-        <div className="pt-1">
-          <h2 className="font-display text-xl font-bold tracking-tight">
-            Serie {deleteIndex + 1} de {exercise.name}
-          </h2>
-          <div className="mt-5 flex flex-col gap-2.5">
-            <Button
-              size="lg"
-              variant="danger"
-              disabled={exercise.sets.length <= 1}
-              onClick={() => {
-                if (deleteSetId) {
-                  dispatch({ type: "REMOVE_SET", exerciseId: exercise.id, setId: deleteSetId });
-                  haptics.warn();
-                }
-                setDeleteSetId(null);
-              }}
-            >
-              Eliminar serie
-            </Button>
-            <Button size="lg" variant="ghost" onClick={() => setDeleteSetId(null)}>
-              Cancelar
-            </Button>
-          </div>
         </div>
-      </Sheet>
+      </div>
+
+      {/* Menú de acciones de una serie */}
+      <ActionSheet
+        open={deleteSetId !== null}
+        onClose={() => setDeleteSetId(null)}
+        title={`Serie ${deleteIndex + 1} de ${exercise.name}`}
+        actions={[
+          {
+            label: "Eliminar serie",
+            destructive: true,
+            disabled: exercise.sets.length <= 1,
+            onSelect: () => {
+              if (deleteSetId) {
+                dispatch({ type: "REMOVE_SET", exerciseId: exercise.id, setId: deleteSetId });
+                haptics.warn();
+              }
+              setDeleteSetId(null);
+            },
+          },
+        ]}
+      />
     </section>
   );
 }

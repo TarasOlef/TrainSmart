@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { CalendarPlus, Dumbbell, Play } from "lucide-react";
 import { TopBar } from "@/components/TopBar";
-import { BottomNav, BottomNavSpacer } from "@/components/BottomNav";
+import { BottomNavSpacer } from "@/components/BottomNav";
 import { CardSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
@@ -185,7 +185,6 @@ export default function PersonPage() {
       />
 
       <BottomNavSpacer />
-      <BottomNav />
     </main>
   );
 }
